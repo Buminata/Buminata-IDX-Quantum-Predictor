@@ -22,7 +22,7 @@ The app is powered by:
 [<img src="https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/dashboard-1.png" width="500"/>](https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/dashboard-1.png)
 
 ## Models & Methodology
-The core of SafeStock AI is an LSTM neural network, specifically designed for sequential data like time series. The model is trained on historical stock prices and technical indicators to predict future movements.
+The core of Buminata IDX Quantum Predictor is a sophisticated regression engine (and previously LSTM models), specifically designed for sequential data like time series.
 
 ## Model Features
 Input Variables: 
@@ -53,9 +53,9 @@ Technical Indicators:
 - Provide user-defined customization for technical indicators.
 
 ## Disclaimer
-❗ SafeStock AI is a tool for research and educational purposes only. It does not provide financial or investment advice.
+❗ Buminata IDX Quantum Predictor is a tool for research and educational purposes only. It does not provide financial or investment advice.
 
 ## Contact 📩
 For any questions or inquiries, feel free to reach out:
-- **LinkedIn:** [Sevilay Munire Girgin](www.linkedin.com/in/sevilay-munire-girgin-8902a7159)
+- **LinkedIn:** [Mohammad Satria Arya](https://www.linkedin.com/in/mohammad-satria-arya-/)
 Thank you for visiting my project repository. Happy and accurate predicting! 💕
