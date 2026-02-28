@@ -1,61 +1,40 @@
 # Buminata IDX Quantum Predictor 📉
 ## Real-Time IDX Stock Forecasting & Analysis 🇮🇩
-Buminata IDX Quantum Predictor is a web-based application focused on the Indonesia Stock Exchange (IDX). It combines real-time stock market data from Yahoo Finance with AI insights to provide technical analysis and trend projections for major Indonesian stocks.
 
-## Key Features
-📈 Real-Time IDX Prices: Stay updated with dynamic data for major Indonesian stocks (BBCA, BBRI, TLKM, GOTO, etc.).
-📉 Live IHSG Tracker: Monitor the Indonesia Stock Exchange Composite Index in real-time.
-📊 Technical Analysis: Explore trends with indicators like SMA, EMA, RSI, and OBV for the Indonesian market.
-🤖 Trend Projections: View price projections based on current market data and deep learning insights.
+**Buminata IDX Quantum Predictor** is a professional web-based dashboard designed for the Indonesia Stock Exchange (IDX). It provides real-time market data, advanced technical analysis, and statistically-backed price forecasting to help traders and investors make data-driven decisions.
 
+## 🚀 Key Features
+*   **Real-Time IDX Prices**: Dynamic streaming data for major Indonesian stocks (BBCA, BBRI, TLKM, GOTO, etc.) via Yahoo Finance.
+*   **MA5 Regression Forecast**: High-precision short-term price projections using 14-day Linear Regression anchored to the 5-day Moving Average (MA5).
+*   **Unified TradingView Chart**: Interactive candlestick charts with volume and technical indicators (MACD, RSI, etc.) in a single, professional interface.
+*   **Broker Activity & Bandarmologi**: Real-time evaluation of accumulation and distribution based on official IDX data columns (By, B.val, B.lot, B.avg).
+*   **Market Insight & Recap**: Daily Top Gainers, Top Movers (Volume), and Uptrend Stock Picks.
 
-## How It Works
-The app is powered by:
+## 🛠️ Built With
+- **Python**: Core logic and data processing.
+- **Streamlit**: Modern, interactive web interface.
+- **YFinance**: Reliable real-time market data extraction.
+- **Scikit-learn**: Statistical models for trend regression.
+- **Plotly**: Premium, interactive financial visualizations.
 
--  Data Preprocessing: Historical stock data is cleaned, scaled, and prepared for analysis.
-- LSTM Model: A robust time-series forecasting algorithm trained to predict stock price movements.
-- Visualization: Interactive charts display historical trends, technical indicators, and model predictions.
+## 🔬 Methodology
+The Buminata Engine uses a **Statistical Regression Approach**:
+- **Trend Source**: Focuses on **MA5 (5-Day Moving Average)** to eliminate daily market noise.
+- **Analysis**: A Linear Regression model maps the last **14 trading days** to find the 'True Trend Line' of momentum.
+- **No Manipulation**: Predictions are purely data-driven, calculating where the MA5 trend will realistically sit over the next 5 days based on mathematical probability.
 
-## Screenshots of Web App
-[<img src="https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-1.png" width="500"/>](https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-1.png) [<img src="https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-2.png" width="500"/>](https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-2.png)
-[<img src="https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-3.png" width="500"/>](https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/stock-prediction-3.png)
-[<img src="https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/dashboard-1.png" width="500"/>](https://github.com/SevilayMuni/stock-prediction-web-app/blob/master/images/dashboard-1.png)
-
-## Models & Methodology
-The core of Buminata IDX Quantum Predictor is a sophisticated regression engine (and previously LSTM models), specifically designed for sequential data like time series.
-
-## Model Features
-Input Variables: 
-    
-    Garman-Klass Volatility
-    Dollar Volume
-    On Balance Volume (OBV)
-    Moving Average Convergence Divergence (MACD)
-    Moving Averages (MAs)
-
-Evaluation Metrics:
-    
-    RMSE (Root Mean Squared Error)
-    MAE (Mean Absolute Error)
-    R² (Coefficient of Determination)
-
-Technical Indicators:
-  
-    SMA (Simple Moving Average): Tracks short-term trends.
-    EMA (Exponential Moving Average): Highlights momentum.
-    RSI (Relative Strength Index): Analyzes overbought/oversold conditions.
-    OBV (On-Balance Volume): Measures buying/selling pressure.
-
-## Future Enhancements
-- Add support for more stocks and global markets.
-- Incorporate additional AI models like GRU and ARIMA for comparative analysis.
-- Deploy for scalability on cloud platforms (AWS, GCP, or Azure).
-- Provide user-defined customization for technical indicators.
+## 📸 Preview
+![Dashboard Preview](https://raw.githubusercontent.com/Buminata/Buminata-IDX-Quantum-Predictor/main/images/stock-prediction-1.png)
+![Technical Analysis](https://raw.githubusercontent.com/Buminata/Buminata-IDX-Quantum-Predictor/main/images/dashboard-1.png)
 
 ## Disclaimer
-❗ Buminata IDX Quantum Predictor is a tool for research and educational purposes only. It does not provide financial or investment advice.
+❗ **Buminata IDX Quantum Predictor** is for research and educational purposes only. It is NOT financial or investment advice. Always do your own research (DYOR) before making trading decisions.
 
-## Contact 📩
-For any questions or inquiries, feel free to reach out:
+## Developer 🧑‍💻
+Created and Maintained by **Mohammad Satria Arya**.
+
+For any inquiries, feel free to reach out:
 - **LinkedIn:** [Mohammad Satria Arya](https://www.linkedin.com/in/mohammad-satria-arya-/)
-Thank you for visiting my project repository. Happy and accurate predicting! 💕
+
+---
+*Happy and accurate predicting! 🚀*
