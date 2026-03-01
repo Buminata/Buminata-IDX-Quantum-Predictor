@@ -23,8 +23,7 @@ The Buminata Engine uses a **Statistical Regression Approach**:
 - **Analysis**: A Linear Regression model maps the last **14 trading days** to find the 'True Trend Line' of momentum.
 - **No Manipulation**: Predictions are purely data-driven, calculating where the MA5 trend will realistically sit over the next 5 days based on mathematical probability.
 
-## 📸 Preview
-![Dashboard Preview](https://raw.githubusercontent.com/Buminata/Buminata-IDX-Quantum-Predictor/main/images/stock-prediction-1.png)
+## 📸 [Dashboard Preview]
 ![Technical Analysis](https://raw.githubusercontent.com/Buminata/Buminata-IDX-Quantum-Predictor/main/images/dashboard-1.png)
 
 ## Disclaimer
