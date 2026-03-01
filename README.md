@@ -24,7 +24,7 @@ The Buminata Engine uses a **Statistical Regression Approach**:
 - **No Manipulation**: Predictions are purely data-driven, calculating where the MA5 trend will realistically sit over the next 5 days based on mathematical probability.
 
 ## 📸 [Dashboard Preview]
-![Technical Analysis](https://raw.githubusercontent.com/Buminata/Buminata-IDX-Quantum-Predictor/main/images/dashboard-1.png)
+
 
 ## Disclaimer
 ❗ **Buminata IDX Quantum Predictor** is for research and educational purposes only. It is NOT financial or investment advice. Always do your own research (DYOR) before making trading decisions.
