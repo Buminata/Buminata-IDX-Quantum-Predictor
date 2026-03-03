@@ -532,12 +532,23 @@ def get_stock_fundamentals(ticker):
     try:
         t = yf.Ticker(ticker)
         info = t.info
+        # Custom Dividend Yield Calculation logic for robustness
+        div_y = info.get("dividendYield")
+        if div_y is None or div_y == 0:
+            # Fallback 1: Try trailing yield (which is often a decimal in yfinance)
+            div_y = (info.get("trailingAnnualDividendYield", 0) or 0) * 100
+        
+        # Final fallback: Manual calculation if rate is available
+        if (div_y is None or div_y == 0) and info.get("dividendRate"):
+            price = info.get("currentPrice") or info.get("previousClose") or 1
+            div_y = (info.get("dividendRate") / price) * 100
+
         metrics = {
             "Name": info.get("longName", ticker),
             "Market Cap": info.get("marketCap", 0),
             "PE Ratio": info.get("trailingPE", 0),
             "PBV": info.get("priceToBook", 0),
-            "Dividend Yield": info.get("dividendYield", 0) * 100 if info.get("dividendYield") else 0,
+            "Dividend Yield": div_y if div_y else 0,
             "52W High": info.get("fiftyTwoWeekHigh", 0),
             "52W Low": info.get("fiftyTwoWeekLow", 0),
         }
