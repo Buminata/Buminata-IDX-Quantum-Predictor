@@ -413,7 +413,7 @@ def generate_insight(df_processed, pred_list, current_price=None):
                 if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
                     # Simulasi untuk Demo User
                     ai_text = f"Berdasarkan algoritma pergerakan diprediksi menuju harga Rp{next_predicted_price:,.0f}. Hal ini menandakan adanya potensi momentum baru. Rekomendasi: Anda dapat mengambil sikap <b>HOLD</b> sambil memantau resistensi terdekat.<br/><small><i>(Simulasi AI tanpa API Key)</i></small>"
-                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
+                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; color: #1e1e1e; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
                 else:
                     client = Groq(api_key=api_key)
                     prompt = f"Harga terakhir: {last_actual_price:,.0f}, Prediksi besok: {next_predicted_price:,.0f}. Sebagai analis saham profesional, berikan 2 kalimat insight singkat soal pergerakan harga ini."
@@ -423,7 +423,7 @@ def generate_insight(df_processed, pred_list, current_price=None):
                         temperature=0.3
                     )
                     ai_text = response.choices[0].message.content
-                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
+                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; color: #1e1e1e; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
         except Exception:
             # Fallback if no API key or error occurs
             pass
