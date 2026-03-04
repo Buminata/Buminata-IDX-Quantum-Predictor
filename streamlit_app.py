@@ -12,12 +12,32 @@ from keras.models import load_model
 from keras.layers import LSTM
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
+import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.linear_model import LinearRegression
 import random
+import os
 
 # Page Layout
 st.set_page_config(page_title ="Buminata IDX Quantum Predictor",  page_icon = "📉", layout = "wide")
+
+@st.cache_data(ttl=3600)
+def load_investor_data():
+    try:
+        # Load pre-parsed CSV if exists
+        csv_path = "investor_data.csv"
+        if os.path.exists(csv_path):
+            df = pd.read_csv(csv_path, skiprows=1)
+            if 'INVESTOR_NAME' in df.columns and 'SHARE_CODE' in df.columns:
+                df['INVESTOR_NAME'] = df['INVESTOR_NAME'].astype(str)
+                df['SHARE_CODE'] = df['SHARE_CODE'].astype(str).str.upper()
+                return df
+    except Exception:
+        pass
+    return pd.DataFrame()
+
+idx_ownership_df = load_investor_data()
 
 # Custom CSS for better aesthetics
 st.markdown("""
@@ -47,7 +67,7 @@ def get_ihsg_data():
 
 ihsg_price, ihsg_change, ihsg_pct = get_ihsg_data()
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Forecast", "Dashboard", "Market News", "Market Insight", "Broker Activity"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Forecast", "Dashboard", "Market News", "Market Insight", "Broker Activity", "🤖 AI Assistant"])
 info_multi = '''📉 **Buminata IDX Quantum Predictor** is your advanced platform for Indonesia Stock Exchange (IDX) forecasting and analysis. 
 Using real-time data from Yahoo Finance and Deep Learning models, we provide insights into market trends for major Indonesian stocks.'''
 
@@ -69,7 +89,7 @@ class CustomLSTM(LSTM):
 
 # Ticker List - Extensive IDX (Subset of Liquid & Major Stocks)
 ticker_list = sorted([
-    'AALI.JK', 'ABBA.JK', 'ABDA.JK', 'ABMM.JK', 'ACES.JK', 'ACST.JK', 'ADES.JK', 'ADHI.JK', 'ADRO.JK', 'AISA.JK', 
+    '^JKSE', 'AALI.JK', 'ABBA.JK', 'ABDA.JK', 'ABMM.JK', 'ACES.JK', 'ACST.JK', 'ADES.JK', 'ADHI.JK', 'ADRO.JK', 'AISA.JK', 
     'AKRA.JK', 'AMMN.JK', 'AMRT.JK', 'ANTM.JK', 'APIC.JK', 'APLN.JK', 'ARII.JK', 'ARKO.JK', 'ARNA.JK', 'ARTO.JK', 
     'ASII.JK', 'ASRI.JK', 'AUTO.JK', 'AVIA.JK', 'AXIO.JK', 'BACA.JK', 'BAJA.JK', 'BALI.JK', 'BANK.JK', 'BAPA.JK', 
     'BATA.JK', 'BAYA.JK', 'BBCA.JK', 'BBHI.JK', 'BBKP.JK', 'BBNI.JK', 'BBRI.JK', 'BBTN.JK', 'BBYB.JK', 'BCIC.JK', 
@@ -176,6 +196,30 @@ def df_process(ticker):
 
 def analyze_sentiment(text):
     if not text or text == 'No Title Available': return "NEUTRAL", "⚪"
+    
+    # Try using Groq AI for Sentiment Analysis
+    try:
+        from groq import Groq
+        if "GROQ_API_KEY" in st.secrets:
+            api_key = st.secrets["GROQ_API_KEY"]
+            if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
+                return "NEUTRAL", "⚪" # Fallback simulation for sentiment doesn't need to call API
+            
+            client = Groq(api_key=api_key)
+            prompt = f"Analisis sentimen dari judul berita saham berikut: '{text}'. Jawab HANYA dengan satu kata: POSITIVE, NEGATIVE, atau NEUTRAL."
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=10
+            )
+            ai_sentiment = response.choices[0].message.content.strip().upper()
+            if "POSITIVE" in ai_sentiment: return "POSITIVE", "🟢"
+            elif "NEGATIVE" in ai_sentiment: return "NEGATIVE", "🔴"
+            elif "NEUTRAL" in ai_sentiment: return "NEUTRAL", "⚪"
+    except Exception:
+        pass # Fallback to keyword-based method if Groq fails or API key is missing
+
     pos_words = ['profit', 'gain', 'naik', 'untung', 'positif', 'rising', 'high', 'growth', 'dividen', 'buy', 'strong', 'prospek', 'ekspansi', 'laba', 'kinerja', 'akuisisi', 'fines', 'fine'] 
     neg_words = ['loss', 'rugi', 'turun', 'jatuh', 'negatif', 'fall', 'low', 'drop', 'cut', 'sell', 'weak', 'krisis', 'suspend', 'anjlok', 'defisit']
     
@@ -359,6 +403,30 @@ def generate_insight(df_processed, pred_list):
         # Calculate percentage change
         percent_change = (next_predicted_price - last_actual_price) / last_actual_price * 100
 
+        # AI Insight generation
+        ai_narrative = ""
+        try:
+            from groq import Groq
+            if "GROQ_API_KEY" in st.secrets:
+                api_key = st.secrets["GROQ_API_KEY"]
+                if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
+                    # Simulasi untuk Demo User
+                    ai_text = f"Berdasarkan algoritma pergerakan diprediksi menuju harga Rp{next_predicted_price:,.0f}. Hal ini menandakan adanya potensi momentum baru. Rekomendasi: Anda dapat mengambil sikap <b>HOLD</b> sambil memantau resistensi terdekat.<br/><small><i>(Simulasi AI tanpa API Key)</i></small>"
+                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
+                else:
+                    client = Groq(api_key=api_key)
+                    prompt = f"Harga terakhir: {last_actual_price:,.0f}, Prediksi besok: {next_predicted_price:,.0f}. Sebagai analis saham profesional, berikan 2 kalimat insight singkat soal pergerakan harga ini."
+                    response = client.chat.completions.create(
+                        model="llama-3.1-8b-instant",
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.3
+                    )
+                    ai_text = response.choices[0].message.content
+                    ai_narrative = f"<div style='margin-top: 15px; padding: 15px; background-color: #f7f9fc; border-left: 4px solid #0052cc; border-radius: 5px;'><strong style='color: #0052cc;'>🤖 AI Market Analyst:</strong><br/>{ai_text}</div>"
+        except Exception:
+            # Fallback if no API key or error occurs
+            pass
+
         # Generate the HTML insight
         insight = f"""
         <div style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6;">
@@ -371,6 +439,7 @@ def generate_insight(df_processed, pred_list):
                 {percent_change:+.2f}%
             </span>
         </div>
+        {ai_narrative}
         """
     else:
         # Fallback message for insufficient data
@@ -958,3 +1027,100 @@ with tab5:
     fig_hist_b.update_layout(title="Bandarmologi Accumulation Trend (10 Days)", 
                             yaxis_title="Total Accumulation Score", template="plotly_dark")
     st.plotly_chart(fig_hist_b, use_container_width=True)
+
+# --- AI ASSISTANT TAB ---
+with tab6:
+    st.header(f"🤖 AI Stock Assistant: {stock_selection.replace('.JK', '')}")
+    st.markdown("Tanyakan apa saja tentang saham ini, indikator teknikalnya, atau minta rekomendasi **Buy/Hold/Sell** berdasarkan data hari ini!")
+
+    # Mengisolasi memori percakapan berdasar saham yang sedang dipilih
+    session_key = f"messages_{stock_selection}"
+    if session_key not in st.session_state:
+        st.session_state[session_key] = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state[session_key]:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # React to user input
+    if prompt := st.chat_input(f"Tanya AI tentang saham {stock_selection.replace('.JK', '')}..."):
+        # Display user message in chat message container
+        st.chat_message("user").markdown(prompt)
+        # Add user message to chat history
+        st.session_state[session_key].append({"role": "user", "content": prompt})
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            try:
+                from groq import Groq
+                if "GROQ_API_KEY" in st.secrets:
+                    api_key = st.secrets["GROQ_API_KEY"]
+                    
+                    # Context for the AI
+                    current_p = data['Close'].iloc[-1] if 'data' in locals() and not data.empty else 0
+                    trend_score = signal if 'signal' in locals() else "N/A"
+                    
+                    if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
+                        dummy_resp = f"*(Mode Simulasi Demo)*\n\nHalo! Emiten **{stock_selection.replace('.JK', '')}** saat ini ditutup di harga **Rp{current_p:,.0f}** dengan konfirmasi indikator teknikal mendeteksi sinyal **{trend_score}**. \n\n**Rekomendasi Simulasi: HOLD**. Pastikan Anda mengamankan modal (Capital Protection) jika sewaktu-waktu MA5 tertembus dan tren mulai berbalik.\n\n---\n*Pesan ini adalah simulasi buatan (Mock) karena API Key Groq Anda masih berupa dummy text. Jika Anda ingin mendapatkan AI yang sesungguhnya yang bisa menjawab pertanyaan kompleks, ikuti panduan pendaftaran Groq API yang gratis dan edit file `secrets.toml` ya! :)*"
+                        import time
+                        for i in range(len(dummy_resp)):
+                            if not dummy_resp[i].isspace():
+                                message_placeholder.markdown(dummy_resp[:i+1] + "▌")
+                                time.sleep(0.01)
+                        message_placeholder.markdown(dummy_resp)
+                        st.session_state[session_key].append({"role": "assistant", "content": dummy_resp})
+                    else:
+                        client = Groq(api_key=api_key)
+                        
+                        system_prompt = f"Anda adalah AI asisten trading saham profesional. Emiten utama yang dianalisa: {stock_selection.replace('.JK', '')}. Harga terakhir: Rp{current_p:,.0f}. Sinyal teknikal saat ini: {trend_score}. Berikan analisis yang tajam, akurat, dan mudah dimengerti."
+                        
+                        # --- DYNAMIC INVESTOR DATA INJECTION ---
+                        if not idx_ownership_df.empty:
+                            search_term = prompt.upper()
+                            matched_data = pd.DataFrame()
+                            
+                            # Cek jika menyebut kode saham (contoh: "BBCA", "AALI")
+                            potential_tickers = [word for word in search_term.split() if len(word) >= 4 and word.isalpha()]
+                            for pt in potential_tickers:
+                                t_match = idx_ownership_df[idx_ownership_df['SHARE_CODE'] == pt]
+                                if not t_match.empty:
+                                    matched_data = pd.concat([matched_data, t_match])
+                            
+                            # Cek jika menyebut nama investor atau perusahaan (fuzzy match sederhana)
+                            # Kata kunci minimal 5 huruf
+                            long_words = [word for word in search_term.split() if len(word) >= 5]
+                            for lw in long_words:
+                                i_match = idx_ownership_df[idx_ownership_df['INVESTOR_NAME'].str.contains(lw, case=False, na=False)]
+                                if not i_match.empty:
+                                    matched_data = pd.concat([matched_data, i_match])
+                            
+                            # Jika tidak ada yang nyantol, pancing dengan saham yang sedang dibuka
+                            if matched_data.empty:
+                                matched_data = idx_ownership_df[idx_ownership_df['SHARE_CODE'] == stock_selection.replace('.JK', '')]
+                            
+                            matched_data = matched_data.drop_duplicates()
+                            
+                            if not matched_data.empty:
+                                matched_data = matched_data.head(20) # batasi max 20 data agar tidak meluap token Llama
+                                data_str = matched_data[['DATE', 'SHARE_CODE', 'ISSUER_NAME', 'INVESTOR_NAME', 'INVESTOR_TYPE', 'TOTAL_HOLDING_SHARES', 'PERCENTAGE']].to_markdown(index=False)
+                                system_prompt += f"\n\nINI ADALAH DATA KEPEMILIKAN SAHAM (INVESTOR OWNERSHIP TERBARU DARI BURSA EFEK INDONESIA) JIKA USER BERTANYA TENTANG KEPEMILIKAN INVESTOR/SAHAM:\n{data_str}\n\nJawablah dengan merujuk pada data di atas jika relevan. Jika ditanya porsi atau siapa saja pemiliknya, bantu format data di atas menjadi kalimat yang manusiawi atau bullet-point yang rapi tanpa perlu membuat tabel kaku kecuali diminta."
+                        
+                        api_messages = [{"role": "system", "content": system_prompt}]
+                        # Append history (limit to last 10 interactions to save context)
+                        for m in st.session_state[session_key][-10:]:
+                            api_messages.append({"role": m["role"], "content": m["content"]})
+                            
+                        response = client.chat.completions.create(
+                            model="llama-3.1-8b-instant",
+                            messages=api_messages,
+                            temperature=0.3
+                        )
+                        
+                        full_response = response.choices[0].message.content
+                        message_placeholder.markdown(full_response)
+                        st.session_state[session_key].append({"role": "assistant", "content": full_response})
+                else:
+                    message_placeholder.error("API Key Groq belum diatur! Silakan atur di `st.secrets` atau file `.streamlit/secrets.toml`.")
+            except Exception as e:
+                message_placeholder.error(f"Maaf, koneksi ke AI gagal. Pesan error: {str(e)}")

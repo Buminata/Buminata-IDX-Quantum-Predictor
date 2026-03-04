@@ -11,3 +11,6 @@ plotly
 pytz
 ta
 python-dateutil
+groq
+pdfplumber
+tabulate
