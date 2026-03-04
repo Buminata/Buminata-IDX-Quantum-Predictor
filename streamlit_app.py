@@ -512,6 +512,87 @@ if not uptrend_picks.empty:
 
 st.sidebar.info("Note: Net Foreign data and Break Sesi updates are calculated based on Price Action & Volume Sentiment as a proxy.")
 
+# Fetch and process data
+@st.cache_data(ttl=60) # 1 Minute Refresh for better responsiveness
+def load_data(ticker, start_date):
+    stock_data = yf.download(ticker, start=start_date, interval='1d')
+    if isinstance(stock_data.columns, pd.MultiIndex):
+        stock_data.columns = stock_data.columns.get_level_values(0)
+    stock_data.reset_index(inplace=True)
+    return stock_data
+
+# Technical Indicators
+
+# Technical Indicators
+def calculate_indicators(data):
+    # On-Balance Volume (OBV)
+    data['OBV'] = (data['Volume'] * ((data['Close'] > data['Close'].shift(1)) * 2 - 1)).cumsum()
+
+    # Moving Averages
+    data['MA5'] = data['Close'].rolling(window=5).mean()
+    data['MA20'] = data['Close'].rolling(window=20).mean()
+    data['SMA_50'] = data['Close'].rolling(window=50).mean()
+    data['SMA_200'] = data['Close'].rolling(window=200).mean()
+    data['EMA_20'] = data['Close'].ewm(span=20, adjust=False).mean()
+    data['EMA_50'] = data['Close'].ewm(span=50, adjust=False).mean()
+    data['EMA_200'] = data['Close'].ewm(span=200, adjust=False).mean()
+
+    # MACD
+    data['EMA_12'] = data['Close'].ewm(span=12, adjust=False).mean()
+    data['EMA_26'] = data['Close'].ewm(span=26, adjust=False).mean()
+    data['MACD'] = data['EMA_12'] - data['EMA_26']
+    data['Signal_Line'] = data['MACD'].ewm(span=9, adjust=False).mean()
+    data['MACD_Hist'] = data['MACD'] - data['Signal_Line']
+
+    # RSI
+    delta = data['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    data['RSI'] = 100 - (100 / (1 + rs))
+
+    # Bollinger Bands
+    data['BB_Mid'] = data['Close'].rolling(window=20).mean()
+    data['BB_Upper'] = data['BB_Mid'] + (data['Close'].rolling(window=20).std() * 2)
+    data['BB_Lower'] = data['BB_Mid'] - (data['Close'].rolling(window=20).std() * 2)
+
+    # Stochastic Oscillator
+    low_14 = data['Low'].rolling(window=14).min()
+    high_14 = data['High'].rolling(window=14).max()
+    data['%K'] = 100 * ((data['Close'] - low_14) / (high_14 - low_14))
+    data['%D'] = data['%K'].rolling(window=3).mean()
+
+    # ATR
+    high_low = data['High'] - data['Low']
+    high_cp = np.abs(data['High'] - data['Close'].shift())
+    low_cp = np.abs(data['Low'] - data['Close'].shift())
+    tr = pd.concat([high_low, high_cp, low_cp], axis=1).max(axis=1)
+    data['ATR'] = tr.rolling(window=14).mean()
+
+    # ADX (Simple version)
+    up_move = data['High'] - data['High'].shift()
+    down_move = data['Low'].shift() - data['Low']
+    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0)
+    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
+    plus_di = 100 * (pd.Series(plus_dm).rolling(14).mean() / data['ATR'])
+    minus_di = 100 * (pd.Series(minus_dm).rolling(14).mean() / data['ATR'])
+    dx = 100 * (np.abs(plus_di - minus_di) / (plus_di + minus_di))
+    data['ADX'] = pd.Series(dx).rolling(14).mean().values
+
+    # CCI
+    tp = (data['High'] + data['Low'] + data['Close']) / 3
+    data['CCI'] = (tp - tp.rolling(14).mean()) / (0.015 * tp.rolling(14).std())
+
+    # Williams %R
+    data['WPR'] = -100 * ((high_14 - data['Close']) / (high_14 - low_14))
+
+    # Keltner Channels
+    data['KC_Mid'] = data['Close'].ewm(span=20, adjust=False).mean()
+    data['KC_Upper'] = data['KC_Mid'] + (data['ATR'] * 2)
+    data['KC_Lower'] = data['KC_Mid'] - (data['ATR'] * 2)
+
+    return data
+
 # Main Display Logic
 selected_df_processed = df_process(stock_selection)
 
@@ -595,14 +676,6 @@ with tab2.col3:
     with st.popover("Relative Strength Index(RSI)"):
         st.markdown(rsi_text)
 
-# Fetch and process data
-@st.cache_data(ttl=60) # 1 Minute Refresh for better responsiveness
-def load_data(ticker, start_date):
-    stock_data = yf.download(ticker, start=start_date, interval='1d')
-    if isinstance(stock_data.columns, pd.MultiIndex):
-        stock_data.columns = stock_data.columns.get_level_values(0)
-    stock_data.reset_index(inplace=True)
-    return stock_data
 
 @st.cache_data(ttl=3600)
 def get_stock_fundamentals(ticker):
@@ -657,77 +730,7 @@ def generate_signals(data):
     elif score == -1: return "SELL", "orange"
     else: return "STRONG SELL", "red"
 
-# Technical Indicators
-
-# Technical Indicators
-def calculate_indicators(data):
-    # On-Balance Volume (OBV)
-    data['OBV'] = (data['Volume'] * ((data['Close'] > data['Close'].shift(1)) * 2 - 1)).cumsum()
-
-    # Moving Averages
-    data['MA5'] = data['Close'].rolling(window=5).mean()
-    data['MA20'] = data['Close'].rolling(window=20).mean()
-    data['SMA_50'] = data['Close'].rolling(window=50).mean()
-    data['SMA_200'] = data['Close'].rolling(window=200).mean()
-    data['EMA_20'] = data['Close'].ewm(span=20, adjust=False).mean()
-    data['EMA_50'] = data['Close'].ewm(span=50, adjust=False).mean()
-    data['EMA_200'] = data['Close'].ewm(span=200, adjust=False).mean()
-
-    # MACD
-    data['EMA_12'] = data['Close'].ewm(span=12, adjust=False).mean()
-    data['EMA_26'] = data['Close'].ewm(span=26, adjust=False).mean()
-    data['MACD'] = data['EMA_12'] - data['EMA_26']
-    data['Signal_Line'] = data['MACD'].ewm(span=9, adjust=False).mean()
-    data['MACD_Hist'] = data['MACD'] - data['Signal_Line']
-
-    # RSI
-    delta = data['Close'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    data['RSI'] = 100 - (100 / (1 + rs))
-
-    # Bollinger Bands
-    data['BB_Mid'] = data['Close'].rolling(window=20).mean()
-    data['BB_Upper'] = data['BB_Mid'] + (data['Close'].rolling(window=20).std() * 2)
-    data['BB_Lower'] = data['BB_Mid'] - (data['Close'].rolling(window=20).std() * 2)
-
-    # Stochastic Oscillator
-    low_14 = data['Low'].rolling(window=14).min()
-    high_14 = data['High'].rolling(window=14).max()
-    data['%K'] = 100 * ((data['Close'] - low_14) / (high_14 - low_14))
-    data['%D'] = data['%K'].rolling(window=3).mean()
-
-    # ATR
-    high_low = data['High'] - data['Low']
-    high_cp = np.abs(data['High'] - data['Close'].shift())
-    low_cp = np.abs(data['Low'] - data['Close'].shift())
-    tr = pd.concat([high_low, high_cp, low_cp], axis=1).max(axis=1)
-    data['ATR'] = tr.rolling(window=14).mean()
-
-    # ADX (Simple version)
-    up_move = data['High'] - data['High'].shift()
-    down_move = data['Low'].shift() - data['Low']
-    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0)
-    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0)
-    plus_di = 100 * (pd.Series(plus_dm).rolling(14).mean() / data['ATR'])
-    minus_di = 100 * (pd.Series(minus_dm).rolling(14).mean() / data['ATR'])
-    dx = 100 * (np.abs(plus_di - minus_di) / (plus_di + minus_di))
-    data['ADX'] = pd.Series(dx).rolling(14).mean().values
-
-    # CCI
-    tp = (data['High'] + data['Low'] + data['Close']) / 3
-    data['CCI'] = (tp - tp.rolling(14).mean()) / (0.015 * tp.rolling(14).std())
-
-    # Williams %R
-    data['WPR'] = -100 * ((high_14 - data['Close']) / (high_14 - low_14))
-
-    # Keltner Channels
-    data['KC_Mid'] = data['Close'].ewm(span=20, adjust=False).mean()
-    data['KC_Upper'] = data['KC_Mid'] + (data['ATR'] * 2)
-    data['KC_Lower'] = data['KC_Mid'] - (data['ATR'] * 2)
-
-    return data
+# Technical Indicators removed
 
 # Plot line chart
 def plot_line_chart(data, x_col, y_cols, title):
