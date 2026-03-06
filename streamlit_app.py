@@ -1101,9 +1101,12 @@ with tab6:
                             # Kata kunci minimal 5 huruf
                             long_words = [word for word in search_term.split() if len(word) >= 5]
                             for lw in long_words:
-                                i_match = idx_ownership_df[idx_ownership_df['INVESTOR_NAME'].str.contains(lw, case=False, na=False)]
-                                if not i_match.empty:
-                                    matched_data = pd.concat([matched_data, i_match])
+                                try:
+                                    i_match = idx_ownership_df[idx_ownership_df['INVESTOR_NAME'].str.contains(lw, case=False, na=False, regex=False)]
+                                    if not i_match.empty:
+                                        matched_data = pd.concat([matched_data, i_match])
+                                except Exception:
+                                    continue
                             
                             # Jika tidak ada yang nyantol, pancing dengan saham yang sedang dibuka
                             if matched_data.empty:
