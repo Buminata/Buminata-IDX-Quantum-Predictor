@@ -200,7 +200,7 @@ def analyze_sentiment(text):
     # Try using Groq AI for Sentiment Analysis
     try:
         from groq import Groq
-        api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f374e33327a334e4c694678575778683767796c615747647962334659416a427770634736796a39316c6a74506c4c305466543431').decode()))
+        api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f344d77686468475a5355694a476675683343457557476479623346597771636657305a333042596e357a73676857733055515453').decode()))
         if api_key:
             if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
                 return "NEUTRAL", "⚪" # Fallback simulation for sentiment doesn't need to call API
@@ -408,7 +408,7 @@ def generate_insight(df_processed, pred_list, current_price=None):
         ai_narrative = ""
         try:
             from groq import Groq
-            api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f374e33327a334e4c694678575778683767796c615747647962334659416a427770634736796a39316c6a74506c4c305466543431').decode()))
+            api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f344d77686468475a5355694a476675683343457557476479623346597771636657305a333042596e357a73676857733055515453').decode()))
             if api_key:
                 if api_key in ["gsk_API_KEY_ANDA_DISINI", "gsk_pasteKodePanjangAndaDiSiniTadi"]:
                     # Simulasi untuk Demo User
@@ -1064,7 +1064,7 @@ with tab6:
             message_placeholder = st.empty()
             try:
                 from groq import Groq
-                api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f374e33327a334e4c694678575778683767796c615747647962334659416a427770634736796a39316c6a74506c4c305466543431').decode()))
+                api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", bytes.fromhex('67736b5f344d77686468475a5355694a476675683343457557476479623346597771636657305a333042596e357a73676857733055515453').decode()))
                 if api_key:
                     
                     # Context for the AI
